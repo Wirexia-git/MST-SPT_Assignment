@@ -33,27 +33,37 @@ class Heap
     public void siftUp( int k) 
     {
         int v = a[k];
-
-        // code yourself
-        // must use hPos[] and dist[] arrays
+        while (k > 1 && dist[v] < dist[a[k/2]]) {
+            a[k] = a[k/2];
+            hPos[a[k]] = k;
+            k /= 2;
+        }
+        a[k] = v;
+        hPos[v] = k;
     }
 
 
     public void siftDown( int k) 
     {
-        int v, j;
-       
-        v = a[k];  
-        
-        // code yourself 
-        // must use hPos[] and dist[] arrays
+        int v = a[k];
+        int j;
+        while (2*k <= N) {
+            j = 2*k;
+            if (j < N && dist[a[j+1]] < dist[a[j]]) j++;
+            if (dist[v] <= dist[a[j]]) break;
+            a[k] = a[j];
+            hPos[a[k]] = k;
+            k = j;
+        }
+        a[k] = v;
+        hPos[v] = k;
     }
 
 
     public void insert( int x) 
     {
         a[++N] = x;
-        siftUp( N);
+        siftUp(N);
     }
 
 
@@ -132,7 +142,10 @@ class Graph {
 
            
             
-            // write code to put edge into adjacency matrix     
+            // write code to put edge into adjacency matrix
+            
+            //adj[u][v] = wgt;
+            //adj[v][u] = wgt; // if graph is undirected
             
         }	       
     }
@@ -165,19 +178,46 @@ class Graph {
         int[]  dist, parent, hPos;
         Node t;
 
-        //code here
-        
-        //dist[s] = 0;
-        
-        //Heap h =  new Heap(V, dist, hPos);
-        //h.insert(s);
-        
-        //while ( ...)  
-        //{
-            // most of alg here
-            
-       // }
-        System.out.print("\n\nWeight of MST = " + wgt_sum + "\n");
+        dist = new int[V+1];
+        parent = new int[V+1];
+        hPos = new int[V+1];
+        for (v = 1; v <= V; v++) {
+            dist[v] = Integer.MAX_VALUE;
+            parent[v] = 0;
+            hPos[v] = 0;
+        }
+
+        dist[s] = 0;
+        parent[s] = s;
+
+        Heap h = new Heap(V, dist, hPos);
+        h.insert(s);
+
+        while (!h.isEmpty()) {
+            u = h.remove();
+            for (t = adj[u]; t != z; t = t.next) {
+                v = t.vert;
+                wgt = t.wgt;
+                if (wgt < dist[v]) {
+                    dist[v] = wgt;
+                    parent[v] = u;
+                    if (hPos[v] == 0) {
+                        h.insert(v);
+                    } else {
+                        h.siftUp(hPos[v]);
+                    }
+                }
+            }
+        }
+
+        mst = parent;
+        for (v = 1; v <= V; v++) {
+            if (mst[v] != 0) {
+                System.out.println(toChar(mst[v]) + " - " + toChar(v));
+                wgt_sum += dist[v];
+            }
+        }
+        System.out.println("Total weight of MST: " + wgt_sum);
         
                   		
 	}
@@ -201,7 +241,7 @@ public class GraphLists {
     public static void main(String[] args) throws IOException
     {
         int s = 2;
-        String fname = "wGraph3.txt";               
+        String fname = "wGraph1.txt";               
 
         Graph g = new Graph(fname);
        
@@ -209,7 +249,7 @@ public class GraphLists {
 
        //g.DF(s);
        //g.breadthFirst(s);
-       //g.MST_Prim(s);   
-       //g.SPT_Dijkstra(s);               
+       g.MST_Prim(s);   
+       g.SPT_Dijkstra(s);               
     }
 }
