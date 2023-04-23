@@ -95,10 +95,13 @@ class Graph {
     private Node[] adj;
     private Node z;
     private int[] mst;
+    private int[][] adjMatrix;
     
     // used for traversing graph
     private int[] visited;
     private int id;
+
+    private int starting_vertex = 12;
     
     
     // default constructor
@@ -110,6 +113,8 @@ class Graph {
 
         FileReader fr = new FileReader(graphFile);
 		BufferedReader reader = new BufferedReader(fr);
+
+        
 	           
         String splits = " +";  // multiple whitespace as delimiter
 		String line = reader.readLine();        
@@ -125,12 +130,14 @@ class Graph {
         
         // create adjacency lists, initialised to sentinel node z       
         adj = new Node[V+1];        
-        for(v = 1; v <= V; ++v)
+        for(v = 1; v <= V; v++)
+        {
             adj[v] = z;               
-        
+        }
+
        // read the edges
         System.out.println("Reading edges from text file");
-        for(e = 1; e <= E; ++e)
+        for(e = 1; e <= E; e++)
         {
             line = reader.readLine();
             parts = line.split(splits);
@@ -144,9 +151,11 @@ class Graph {
             
             // write code to put edge into adjacency matrix
             
-            //adj[u][v] = wgt;
-            //adj[v][u] = wgt; // if graph is undirected
-            
+            /*for(v = 1; v <= V; v++)
+            {
+                adjMatrix[u][v] = wgt;
+                //System.out.println("adjMatrix " + adjMatrix[u][v]);     
+            }*/
         }	       
     }
    
@@ -157,22 +166,27 @@ class Graph {
     }
     
     // method to display the graph representation
-    public void display() {
+    public void display() 
+    {
         int v;
         Node n;
-        
-        for(v=1; v<=V; ++v){
-            System.out.print("\nadj[" + toChar(v) + "] ->" );
-            for(n = adj[v]; n != z; n = n.next) 
-                System.out.print(" |" + toChar(n.vert) + " | " + n.wgt + "| ->");    
-        }
-        System.out.println("");
+        System.out.println("\n---- ADJACENCY LIST DISPLAY ----\n");
+            for(v=1; v<=V; v++)
+            {
+                System.out.print("\nadj[" + toChar(v) + "] -> " );
+                for(n = adj[v]; n != z; n = n.next) 
+                {
+                    System.out.print(" |" + toChar(n.vert) + " | " + n.wgt + "| ->");
+                }
+            }
+            System.out.println("");
     }
 
 
     
 	public void MST_Prim(int s)
 	{
+        System.out.println("\n---- PRIM ALGORITHM ----\n");
         int v, u;
         int wgt, wgt_sum = 0;
         int[]  dist, parent, hPos;
