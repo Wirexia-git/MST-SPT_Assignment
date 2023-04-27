@@ -3,38 +3,32 @@
 
 import java.io.*;
 
-class Heap
-{
-    private int[] a;	   // heap array
-    private int[] hPos;	   // hPos[h[k]] == k
-    private int[] dist;    // dist[v] = priority of v
+class Heap {
+    private int[] a;        // heap array
+    public int[] hPos;      // hPos[h[k]] == k
+    private int[] dist;     // dist[v] = priority of v
 
-    private int N;         // heap size
+    private int N;          // heap size
    
     // The heap constructor gets passed from the Graph:
     //    1. maximum heap size
     //    2. reference to the dist[] array
     //    3. reference to the hPos[] array
-    public Heap(int maxSize, int[] _dist, int[] _hPos) 
-    {
+    public Heap(int maxSize, int[] _dist, int[] _hPos) {
         N = 0;
         a = new int[maxSize + 1];
         dist = _dist;
         hPos = _hPos;
     }
 
-
-    public boolean isEmpty() 
-    {
+    public boolean isEmpty() {
         return N == 0;
     }
 
-
-    public void siftUp( int k) 
-    {
+    public void siftUp(int k) {
         int v = a[k];
-        while (k > 1 && dist[v] < dist[a[k/2]]) {
-            a[k] = a[k/2];
+        while (k > 1 && dist[v] < dist[a[k / 2]]) {
+            a[k] = a[k / 2];
             hPos[a[k]] = k;
             k /= 2;
         }
@@ -42,15 +36,17 @@ class Heap
         hPos[v] = k;
     }
 
-
-    public void siftDown( int k) 
-    {
+    public void siftDown(int k) {
         int v = a[k];
         int j;
-        while (2*k <= N) {
-            j = 2*k;
-            if (j < N && dist[a[j+1]] < dist[a[j]]) j++;
-            if (dist[v] <= dist[a[j]]) break;
+        while (2 * k <= N) {
+            j = 2 * k;
+            if (j < N && dist[a[j + 1]] < dist[a[j]]) {
+                j++;
+            }
+            if (dist[v] <= dist[a[j]]) {
+                break;
+            }
             a[k] = a[j];
             hPos[a[k]] = k;
             k = j;
@@ -59,26 +55,21 @@ class Heap
         hPos[v] = k;
     }
 
-
-    public void insert( int x) 
-    {
+    public void insert(int x) {
         a[++N] = x;
         siftUp(N);
     }
 
-
-    public int remove() 
-    {   
+    public int remove() {
         int v = a[1];
-        hPos[v] = 0; // v is no longer in heap
-        a[N+1] = 0;  // put null node into empty spot
+        hPos[v] = 0;    // v is no longer in heap
+        a[N ] = 0;   // put null node into empty spot
         
         a[1] = a[N--];
         siftDown(1);
         
         return v;
     }
-
 }
 
 class Graph {
@@ -102,7 +93,7 @@ class Graph {
     private int id;
 
     private int starting_vertex = 12;
-    
+    int _adj;
     
     // default constructor
     public Graph(String graphFile)  throws IOException
@@ -113,8 +104,6 @@ class Graph {
 
         FileReader fr = new FileReader(graphFile);
 		BufferedReader reader = new BufferedReader(fr);
-
-        
 	           
         String splits = " +";  // multiple whitespace as delimiter
 		String line = reader.readLine();        
@@ -123,7 +112,7 @@ class Graph {
         
         V = Integer.parseInt(parts[0]);
         E = Integer.parseInt(parts[1]);
-        
+        adjMatrix = new int[E][E];
         // create sentinel node
         z = new Node(); 
         z.next = z;
@@ -137,25 +126,18 @@ class Graph {
 
        // read the edges
         System.out.println("Reading edges from text file");
-        for(e = 1; e <= E; e++)
+        for(e = 0; e < E; e++)
         {
             line = reader.readLine();
+    
             parts = line.split(splits);
             u = Integer.parseInt(parts[0]);
             v = Integer.parseInt(parts[1]); 
             wgt = Integer.parseInt(parts[2]);
-            
-            System.out.println("Edge " + toChar(u) + "--(" + wgt + ")--" + toChar(v));   
 
-           
-            
-            // write code to put edge into adjacency matrix
-            
-            /*for(v = 1; v <= V; v++)
-            {
-                adjMatrix[u][v] = wgt;
-                //System.out.println("adjMatrix " + adjMatrix[u][v]);     
-            }*/
+            adjMatrix[e][0] = u;
+            adjMatrix[e][1] = v;
+            adjMatrix[e][2] = wgt;
         }	       
     }
    
@@ -171,15 +153,19 @@ class Graph {
         int v;
         Node n;
         System.out.println("\n---- ADJACENCY LIST DISPLAY ----\n");
-            for(v=1; v<=V; v++)
+            /*for(v=1; v<=V; v++)
             {
                 System.out.print("\nadj[" + toChar(v) + "] -> " );
                 for(n = adj[v]; n != z; n = n.next) 
                 {
                     System.out.print(" |" + toChar(n.vert) + " | " + n.wgt + "| ->");
                 }
-            }
-            System.out.println("");
+            }*/
+        System.out.println("");
+        for(int i = 0; i < adjMatrix.length;i++){
+            System.out.print("\nadj[" + toChar(adjMatrix[i][0]) + " " +toChar(adjMatrix[i][1])+" "+toChar(adjMatrix[i][2])+"]"); 
+            
+        }
     }
 
 
@@ -244,17 +230,76 @@ class Graph {
             System.out.println("");
     }
 
-    public void SPT_Dijkstra(int s)
-    {
-
+    public void SPT_Dijkstra(int s) {
+        
+        System.out.println();
+        System.out.println("\nSPT_Dijkstra Algorithm\n");
+        // initialise visited[], dist[] and prev[]
+        visited = new int[V+1];
+        int []dist = new int[V+1];
+        int []prev = new int[V+1];
+    
+        for (int v = 1; v <= V; v++) {
+            visited[v] = 0;
+            dist[v] = Integer.MAX_VALUE;
+            prev[v] = -1;
+        }
+    
+        // set the distance to the starting vertex to 0
+        dist[s] = 0;
+    
+        // create heap, h, to store vertices not yet processed
+        Heap h = new Heap(V, dist, new int[V+1]);
+        for (int v = 1; v <= V; v++) {
+            h.insert(v);
+        }
+    
+        int v, u;
+    
+        // iteratively visit closest unvisited vertex
+        while (!h.isEmpty()) {
+            v = h.remove();
+            visited[v] = 1;
+    
+            // iterate over adjacent vertices of v
+            for (int e = 0; e < E; e++) {
+                if (adjMatrix[e][0] == v) {
+                    u = adjMatrix[e][1];
+                    if (visited[u] == 0) {
+                        if (dist[v] + adjMatrix[e][2] < dist[u]) {
+                            dist[u] = dist[v] + adjMatrix[e][2];
+                            prev[u] = v;
+                            h.siftUp(h.hPos[u]);
+                        }
+                    }
+                }
+            }
+        }
+        
+        // print shortest paths
+        for (int i = 1; i <= V; i++) {
+            if (dist[i] == Integer.MAX_VALUE) {
+                System.out.println("No path from vertex " + toChar(s) + " to vertex " + toChar(i));
+            } else {
+                System.out.print("Distance from vertex " + toChar(s) + " to vertex " + toChar(i) + " is " + dist[i]);
+                System.out.print(", path is [" + toChar(i));
+                int j = i;
+                while (prev[j] != -1) {
+                    System.out.print(", " + toChar(prev[j]));
+                    j = prev[j];
+                }
+                System.out.println("]");
+            }
+        }
+        System.out.println("\n\n");
     }
-
 }
+
 
 public class GraphLists {
     public static void main(String[] args) throws IOException
-    {
-        int s = 2;
+    { 
+        int s = 1;
         String fname = "wGraph1.txt";               
 
         Graph g = new Graph(fname);
@@ -263,7 +308,7 @@ public class GraphLists {
 
        //g.DF(s);
        //g.breadthFirst(s);
-       g.MST_Prim(s);   
+       //g.MST_Prim(s);   
        g.SPT_Dijkstra(s);               
     }
 }
