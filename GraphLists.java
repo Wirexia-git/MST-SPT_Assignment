@@ -132,7 +132,7 @@ class Graph {
         adj = new Node[V+1];        
         for(v = 1; v <= V; v++)
         {
-            adj[v] = z;               
+            adj[v] = Integer.MAX_VALUE;               
         }
 
        // read the edges
@@ -150,12 +150,10 @@ class Graph {
            
             
             // write code to put edge into adjacency matrix
-            
-            /*for(v = 1; v <= V; v++)
+            while (v != 0)
             {
-                adjMatrix[u][v] = wgt;
-                //System.out.println("adjMatrix " + adjMatrix[u][v]);     
-            }*/
+
+            }
         }	       
     }
    
