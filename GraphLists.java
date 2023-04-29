@@ -132,7 +132,7 @@ class Graph {
         adj = new Node[V+1];        
         for(v = 1; v <= V; v++)
         {
-            adj[v] = Integer.MAX_VALUE;               
+            adj[v] = z;               
         }
 
        // read the edges
