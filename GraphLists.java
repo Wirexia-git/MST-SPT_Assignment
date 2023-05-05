@@ -3,6 +3,7 @@
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Scanner;
 
 class Heap {
     private int[] a; // heap array
@@ -113,7 +114,7 @@ class Graph {
 
             V = Integer.parseInt(parts[0]); // Number of vertices
             E = Integer.parseInt(parts[1]); // Number of edges
-
+            System.out.println(E);
             adjMatrix = new int[E][E];
 
             // create sentinel node
@@ -128,7 +129,7 @@ class Graph {
 
             // read the edges
             System.out.println("Reading edges from text file");
-            for (e = 1; e < E; e++) {
+            for (e = 0; e < E; e++) {
                 line = reader.readLine();
                 parts = line.split(splits);
                 u = Integer.parseInt(parts[0]); // starting vertex
@@ -139,7 +140,6 @@ class Graph {
                 adjMatrix[e][0] = u;
                 adjMatrix[e][1] = v;
                 adjMatrix[e][2] = wgt;
-
             }
         } catch (NumberFormatException e1) {
             // TODO Auto-generated catch block
@@ -158,8 +158,13 @@ class Graph {
         System.out.println("\n---- ADJACENCY LIST DISPLAY ----\n");
         System.out.println("");
         for (int i = 0; i < adjMatrix.length; i++) {
-            System.out.println("adjMatrix[e][0] = u = " + adjMatrix[i][0] + " ;;;adjMatrix[e][1] = v = "
-                    + adjMatrix[i][1] + " ;;;adjMatrix[e][2] = wgt =" + adjMatrix[i][2] + "\n");
+            for(int j = 0; j < 3; j++){
+                char u = (char)(adjMatrix[i][j] + 'A');
+                char v = (char)(adjMatrix[i][j] + 'A');
+                int wgt = adjMatrix[i][j];
+                System.out.println("Graph Edge " + u + "--(" + wgt + ")--" + v);
+            }
+            
         }
     }
 
@@ -240,6 +245,7 @@ class Graph {
             for (int j = 1; j <= V; j++) {
                 // Find the unvisited vertex with the smallest distance
                 if (!visited[j] && (u == -1 || dist[j] < dist[u])) {
+                  
                     u = j;
                 }
             }
@@ -257,6 +263,11 @@ class Graph {
                 }
             }
         }
+
+        System.out.println("Vertex\tDistance\tParent");
+for (int i = 1; i <= V; i++) {
+    System.out.println(i + "\t" + dist[i] + "\t\t" + parent[i]);
+}
 
         // Print the shortest paths and distances
         System.out.println("\n==================================");
@@ -287,10 +298,17 @@ class Graph {
 
 public class GraphLists {
     public static void main(String[] args) throws IOException {
-        int s = 12;
+        //int s = 12;
         String fname = "wGraph1.txt";
 
         Graph g = new Graph(fname);
+
+        g.display();
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.print("Enter the source vertex s: ");
+        int s = scanner.nextInt();
+        
         g.MST_Prim(s);
         g.SPT_Dijkstra(s);
     }
