@@ -236,6 +236,7 @@ class Graph
                     dist[u] = adjMatrix[v][2];
                     System.out.println("DISPLAY dist[v] = " + dist[u]);
                     System.out.println("DISPLAY adjMatrix[v][2] = " + adjMatrix[v][2]);
+                    System.out.println("DISPLAY u " + u + " and v " + v);
                     parent[u] = v;
                     //System.out.println("parent[u] = v = " + parent[u]);
                 }
