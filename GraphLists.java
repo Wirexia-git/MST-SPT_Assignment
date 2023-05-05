@@ -264,11 +264,6 @@ class Graph {
             }
         }
 
-        System.out.println("Vertex\tDistance\tParent");
-for (int i = 1; i <= V; i++) {
-    System.out.println(i + "\t" + dist[i] + "\t\t" + parent[i]);
-}
-
         // Print the shortest paths and distances
         System.out.println("\n==================================");
         System.out.println("= SHORTEST PATHS AND DISTANCES =");
