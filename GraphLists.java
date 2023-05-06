@@ -155,6 +155,10 @@ class Graph
             adjMatrix[e][1] = v;
             adjMatrix[e][2] = wgt;
 
+            // fill adjacency list
+            Node newNode = new Node();
+            newNode.next = adj[u];
+            adj[u] = newNode;
         }	       
     }
    
@@ -169,110 +173,109 @@ class Graph
     {
         System.out.println("\n---- ADJACENCY LIST DISPLAY ----\n");
         System.out.println("");
-        for(int i = 0; i < adjMatrix.length; i++)
+        for(int i = 1; i < adjMatrix.length; i++)
         {
-            System.out.println("adjMatrix[e][0] = u = " + adjMatrix[i][0] + " ;;;adjMatrix[e][1] = v = " + adjMatrix[i][1] + " ;;;adjMatrix[e][2] = wgt =" + adjMatrix[i][2] + "\n"); 
+            //System.out.println("adjMatrix[e][0] = u = " + adjMatrix[i][0] + " ;;;adjMatrix[e][1] = v = " + adjMatrix[i][1] + " ;;;adjMatrix[e][2] = wgt =" + adjMatrix[i][2] + "\n"); 
+            System.out.println("" + (toChar(adjMatrix[i][0])) + " --> " + (toChar(adjMatrix[i][1])) + " == " + adjMatrix[i][2]);
         }
     }
-
 
     
 	public void MST_Prim(int s)
 	{
         System.out.println("\n---- MST PRIM ALGORITHM ----\n");
-        /*int[] dist = new int[V+1];
-        int[] parent = new int[V+1];
-        boolean[] visited = new boolean[V+1];
-        int v = s;
-        int wgt_sum = 0;
-        
-        Arrays.fill(dist, Integer.MAX_VALUE);
-        Arrays.fill(parent, -1);
-        dist[0] = Integer.MAX_VALUE;
-        
-        for(int i = 0; i < V - 1; i++) {
-            dist[v] = -dist[v];
-            int min = -1;
-            
-            for(int u = 1; u <= V; u++) {
-                if(adjMatrix[v][u] != 0 && adjMatrix[v][u] < dist[u]) {
-                    dist[u] = adjMatrix[v][u];
-                    parent[u] = v;
-                }
-                if(!visited[u] && (min == -1 || dist[u] < dist[min])) {
-                    min = u;
-                }
-            }
-            
-            v = min;
-            visited[v] = true;
-        }*/
-
         /* Search works, never goes beyond vertex A, vertex A seeks edges with all the other vertex
          * additional if statements required
         */
         int[] dist = new int[V+1];
         int[] parent = new int[V+1];
+        boolean[] visited = new boolean[V+1];
         int wgt_sum = 0;
 
-        for (int v = 0; v < V; v++)
+        for (int v = 0; v <= V; v++)
         {
             dist[v] = Integer.MAX_VALUE;
-            parent[v] = 0;
+            parent[v] = -1;
         }
 
         int v = s;
-        dist[0] = Integer.MAX_VALUE; 
+        dist[0] = Integer.MAX_VALUE;
 
-        while (v > 0)
+        /*
+        if (adjMatrix[8][0] > 0)
+        {
+            System.out.println("TRUE");
+            System.out.println("adjMatrix = " + adjMatrix[8][0]);
+            System.out.println("toChar adjMatrix = " + (toChar(adjMatrix[8][0])));
+            System.out.println("toChar adjMatrix reverse = " + (toChar(adjMatrix[0][3])));
+            System.out.println("toChar u = " + (toChar(1)));
+            System.out.println("toChar v = " + (toChar(2)));
+            System.out.println("----\n");
+        }
+        else
+        {
+            System.out.println("FALSE");
+        }*/
+
+        //int x = 11;
+        //int i = 1;
+
+        /* 
+        while (i < E)
+        {
+            if (adjMatrix[i][1] == x) 
+            {
+                System.out.println("Vertex " + toChar(adjMatrix[i][0]) + " IS adjacent to vertex " + toChar(x) + " with weight " + adjMatrix[i][2]);
+                break;
+            } 
+            else 
+            {
+                System.out.println("Vertex " + toChar(adjMatrix[i][0]) + " is NOT adjacent to vertex " + toChar(x));
+            }
+
+            i++;
+        }*/
+
+        while (v != 0)
         {
             dist[v] = -dist[v];
             int min = 0;
 
             for (int u = 1; u <= V; u++)
             {
-                if (adjMatrix[v][2] <= adjMatrix[u][2] && adjMatrix[v][2] < dist[u])
+                //if starting vertex belongs to adjacent vertex AND weight of the edge is less than dist[u] then
+                if (adjMatrix[u][1] == v && adjMatrix[u][2] < dist[u])
                 {
-                    dist[u] = adjMatrix[v][2];
-                    System.out.println("DISPLAY dist[v] = " + dist[u]);
-                    System.out.println("DISPLAY adjMatrix[v][2] = " + adjMatrix[v][2]);
-                    System.out.println("DISPLAY u " + u + " and v " + v);
+                    dist[u] = adjMatrix[u][2];
+                    System.out.println("Vertex " + toChar(adjMatrix[u][0]) + " IS adjacent to vertex " + toChar(v) + " with weight " + adjMatrix[u][2]);
                     parent[u] = v;
-                    //System.out.println("parent[u] = v = " + parent[u]);
+                    wgt_sum += adjMatrix[u][2];
+                    System.out.println("dist[u] = " + dist[u]);
                 }
 
                 if (dist[u] < dist[min] && dist[u] > 0)
-                {
+                {      
                     min = u;
+                    System.out.println("min = " + min);
                 }
             }
+
             v = min;
         }
 
+        System.out.println("Weight of MST: " + wgt_sum);
         mst = parent;
-        for (v = 1; v <= V; v++) 
-        {
-            //System.out.println("v = " + v);
-            if (mst[v] > 0) 
-            {
-                System.out.println(toChar(mst[v]) + " -> " + toChar(v));
-                wgt_sum = wgt_sum + dist[v];
-                //System.out.println("DISPLAY mst[v] = " + mst[v] + ";;; v = " + v);
-                System.out.println("DISPLAY dist[v] = " + dist[v]);
-                mst[v] = parent[v];
-            }
-        }
-        System.out.println("Total weight of MST: " + wgt_sum);
-        
                   		
 	}
     
     public void showMST()
     {
-            System.out.print("\n\nMinimum Spanning tree parent array is:\n");
-            for(int v = 1; v <= V; ++v)
-                System.out.println(toChar(v) + " -> " + toChar(mst[v]));
-            System.out.println("");
+        System.out.print("\n\nMinimum Spanning tree parent array is:\n");
+        for(int v = 1; v <= V; ++v)
+        {
+            System.out.println(toChar(v) + " -> " + toChar(mst[v]));
+        }
+        System.out.println("");
     }
 
     public void SPT_Dijkstra(int s) 
@@ -356,7 +359,7 @@ public class GraphLists {
        //g.DF(s);
        //g.breadthFirst(s);
        g.MST_Prim(s); 
-       //g.showMst();  
+       g.showMST();  
        //SPT_Dijkstra(s);               
     }
 }
