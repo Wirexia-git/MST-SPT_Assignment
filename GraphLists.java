@@ -106,8 +106,6 @@ class Graph
     // used for traversing graph
     private int[] visited;
     private int id;
-
-    private int starting_vertex = 12;
     
     
     // default constructor
@@ -115,9 +113,12 @@ class Graph
     {
         int u, v;
         int e, wgt;
+        Node t;
 
         FileReader fr = new FileReader(graphFile);
 		BufferedReader reader = new BufferedReader(fr);
+
+        int[] visited = new int[V+1];
 
         String splits = " +";  // multiple whitespace as delimiter
 		String line = reader.readLine();        
@@ -127,7 +128,7 @@ class Graph
         V = Integer.parseInt(parts[0]); // Number of vertices
         E = Integer.parseInt(parts[1]); // Number of edges
         
-        adjMatrix = new int[E][E];
+        adjMatrix = new int[E+1][E];
 
         // create sentinel node
         z = new Node(); 
@@ -137,12 +138,14 @@ class Graph
         adj = new Node[V+1];        
         for(v = 1; v <= V; v++)
         {
-            adj[v] = z;               
+            adj[v] = z;             
         }
+
+
 
        // read the edges
         System.out.println("Reading edges from text file");
-        for(e = 1; e < E; e++)
+        for(e = 1; e <= E; e++)
         {
             line = reader.readLine();
             parts = line.split(splits);
@@ -156,9 +159,12 @@ class Graph
             adjMatrix[e][2] = wgt;
 
             // fill adjacency list
-            Node newNode = new Node();
-            newNode.next = adj[u];
-            adj[u] = newNode;
+            t = new Node();
+            t.vert = v;
+            t.wgt = wgt;
+            t.next = adj[u];
+            adj[u] = t;
+
         }	       
     }
    
@@ -184,87 +190,52 @@ class Graph
 	public void MST_Prim(int s)
 	{
         System.out.println("\n---- MST PRIM ALGORITHM ----\n");
-        /* Search works, never goes beyond vertex A, vertex A seeks edges with all the other vertex
-         * additional if statements required
-        */
-        int[] dist = new int[V+1];
-        int[] parent = new int[V+1];
-        boolean[] visited = new boolean[V+1];
-        int wgt_sum = 0;
 
-        for (int v = 0; v <= V; v++)
+        int u, v;
+        int wgt, wgt_sum = 0;
+        int[] dist = new int[V+1]; 
+        int[] parent = new int[V+1];
+        int[] hPos = new int [V+1];
+        Node t;
+
+        //code here
+        for (v = 1; v <= V; v++)
         {
             dist[v] = Integer.MAX_VALUE;
-            parent[v] = -1;
+            parent[v] = 0;
+            hPos[v] = 0;
         }
-
-        int v = s;
-        dist[0] = Integer.MAX_VALUE;
-
-        /*
-        if (adjMatrix[8][0] > 0)
+        
+        dist[s] = 0;
+        
+        Heap h =  new Heap(V, dist, hPos);
+        h.insert(s);
+        
+        while (!h.isEmpty())  
         {
-            System.out.println("TRUE");
-            System.out.println("adjMatrix = " + adjMatrix[8][0]);
-            System.out.println("toChar adjMatrix = " + (toChar(adjMatrix[8][0])));
-            System.out.println("toChar adjMatrix reverse = " + (toChar(adjMatrix[0][3])));
-            System.out.println("toChar u = " + (toChar(1)));
-            System.out.println("toChar v = " + (toChar(2)));
-            System.out.println("----\n");
-        }
-        else
-        {
-            System.out.println("FALSE");
-        }*/
-
-        //int x = 11;
-        //int i = 1;
-
-        /* 
-        while (i < E)
-        {
-            if (adjMatrix[i][1] == x) 
-            {
-                System.out.println("Vertex " + toChar(adjMatrix[i][0]) + " IS adjacent to vertex " + toChar(x) + " with weight " + adjMatrix[i][2]);
-                break;
-            } 
-            else 
-            {
-                System.out.println("Vertex " + toChar(adjMatrix[i][0]) + " is NOT adjacent to vertex " + toChar(x));
-            }
-
-            i++;
-        }*/
-
-        while (v != 0)
-        {
+            v = h.remove();
             dist[v] = -dist[v];
-            int min = 0;
-
-            for (int u = 1; u <= V; u++)
+            
+            for (t = adj[v]; t != null; t = t.next)
             {
-                //if starting vertex belongs to adjacent vertex AND weight of the edge is less than dist[u] then
-                if (adjMatrix[u][1] == v && adjMatrix[u][2] < dist[u])
+                if (t.wgt < dist[t.vert] && dist[t.vert] != 0)
                 {
-                    dist[u] = adjMatrix[u][2];
-                    System.out.println("Vertex " + toChar(adjMatrix[u][0]) + " IS adjacent to vertex " + toChar(v) + " with weight " + adjMatrix[u][2]);
-                    parent[u] = v;
-                    wgt_sum += adjMatrix[u][2];
-                    System.out.println("dist[u] = " + dist[u]);
+                    dist[t.vert] = t.wgt;
+                    parent[t.vert] = v;
+                    wgt_sum = wgt_sum + t.wgt;
                 }
 
-                if (dist[u] < dist[min] && dist[u] > 0)
-                {      
-                    min = u;
-                    System.out.println("min = " + min);
+                if (hPos[t.vert] == 0)
+                {
+                    h.insert(t.vert);
+                }
+                else
+                {
+                    h.siftUp(hPos[t.vert]);
                 }
             }
-
-            v = min;
         }
-
-        System.out.println("Weight of MST: " + wgt_sum);
-        mst = parent;
+        System.out.print("\n\nWeight of MST = " + wgt_sum + "\n");
                   		
 	}
     
@@ -280,77 +251,80 @@ class Graph
 
     public void SPT_Dijkstra(int s) 
     {    
-        System.out.println("\n ---- SPT DIJKSTRA ALGORITHM ----\n");
-
-        // initialise visited[], dist[] and prev[]
-        visited = new int[V+1];
-        int[] dist = new int[V+1];
-        int[] prev = new int[V+1];
-        int[] parent = new int[V+1];
-    
-        for (int v = 1; v <= V; v++) {
-            dist[v] = Integer.MAX_VALUE;
-            visited[v] = 0;
-            prev[v] = -1;
-            //parent[v] = (Integer) null;
-        }
-    
-        // set the distance to the starting vertex to 0
-        dist[s] = 0;
-    
-        // create heap, h, to store vertices not yet processed
-        Heap h = new Heap(V, dist, new int[V+1]);
-        for (int v = 1; v <= V; v++) {
-            h.insert(v);
-        }
-    
-        int v, u;
-    
-        // iteratively visit closest unvisited vertex
-        while (!h.isEmpty()) {
-            v = h.remove();
-            visited[v] = 1;
-    
-            // iterate over adjacent vertices of v
-            for (int e = 0; e < E; e++) {
-                if (adjMatrix[e][0] == v) {
-                    u = adjMatrix[e][1];
-                    if (visited[u] == 0) {
-                        if (dist[v] + adjMatrix[e][2] < dist[u]) {
-                            dist[u] = dist[v] + adjMatrix[e][2];
-                            prev[u] = v;
-                            h.siftUp(h.hPos[u]);
-                        }
-                    }
-                }
-            }
-        }
-        
-        // print shortest paths
-        for (int i = 1; i <= V; i++) {
-            if (dist[i] == Integer.MAX_VALUE) {
-                System.out.println("No path from vertex " + toChar(s) + " to vertex " + toChar(i));
-            } else {
-                System.out.print("Distance from vertex " + toChar(s) + " to vertex " + toChar(i) + " is " + dist[i]);
-                System.out.print(", path is [" + toChar(i));
-                int j = i;
-                while (prev[j] != -1) {
-                    System.out.print(", " + toChar(prev[j]));
-                    j = prev[j];
-                }
-                System.out.println("]");
-            }
-        }
-        System.out.println("\n\n");
-    }
-}
+         // Initialize the distance, parent, and visited arrays
+         int[] dist = new int[V + 1];
+         int[] parent = new int[V + 1];
+         boolean[] visited = new boolean[V + 1];
+ 
+         // Set all distances to infinity and visited to false
+         for (int i = 1; i <= V; i++) {
+             dist[i] = Integer.MAX_VALUE;
+             visited[i] = false;
+         }
+ 
+         // Set the distance to the source vertex to 0
+         dist[s] = 0;
+ 
+         // Run Dijkstra's algorithm
+         for (int i = 1; i <= V; i++) {
+             int u = -1;
+             for (int j = 1; j <= V; j++) {
+                 // Find the unvisited vertex with the smallest distance
+                 if (!visited[j] && (u == -1 || dist[j] < dist[u])) {
+                   
+                     u = j;
+                 }
+             }
+ 
+             visited[u] = true;
+ 
+             // Update the distances and parents of the adjacent vertices
+             for (int v = 1; v <= V; v++) {
+                 if (adjMatrix[u][v] != 0 && !visited[v]) {
+                     int alt = dist[u] + adjMatrix[u][v];
+                     if (alt < dist[v]) {
+                         dist[v] = alt;
+                         parent[v] = u;
+                     }
+                 }
+             }
+         }
+ 
+         // Print the shortest paths and distances
+         System.out.println("\n==================================");
+         System.out.println("= SHORTEST PATHS AND DISTANCES =");
+         System.out.println("==================================\n");
+         System.out.println("Source vertex: " + toChar(s));
+         System.out.println("__________________________________\n");
+ 
+         for (int v = 1; v <= V; v++) {
+             if (dist[v] == Integer.MAX_VALUE) {
+                 // If there is no path to the source vertex, print a message
+                 System.out.println("Path from " + toChar(s) + " to " + toChar(v) + ": no path to the source");
+             } else {
+                 // Otherwise, construct the path and print the result
+                 String path = "";
+                 int p = v;
+                 while (p != s) {
+                     path = "-" + toChar(p) + path;
+                     p = parent[p];
+                 }
+                 path = toChar(s) + path;
+                 System.out.println("Path from " + toChar(s) + " to " + toChar(v) + ": " + path + ": " + dist[v]);
+             }
+         }
+         System.out.println("__________________________________\n");
+     }
+ }
 
 
 public class GraphLists {
     public static void main(String[] args) throws IOException
     {
-        int s = 2;
-        String fname = "wGraph1.txt";               
+        int s = 12;
+        String fname = "wGraph1.txt";
+        
+        
 
         Graph g = new Graph(fname);
        
@@ -360,6 +334,6 @@ public class GraphLists {
        //g.breadthFirst(s);
        g.MST_Prim(s); 
        g.showMST();  
-       //SPT_Dijkstra(s);               
+       //g.SPT_Dijkstra(s);               
     }
 }
